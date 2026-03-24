@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iStore 門市聯絡資料</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; background: #f2f2f7; min-height: 100vh; }
+
+.header { background: #fff; padding: 16px; border-bottom: 0.5px solid #e0e0e0; position: sticky; top: 0; z-index: 10; }
+.header h1 { font-size: 17px; font-weight: 600; color: #000; margin-bottom: 12px; }
+
+.search-box { width: 100%; font-size: 15px; padding: 9px 14px; border-radius: 10px; border: none; background: #f2f2f7; color: #000; margin-bottom: 12px; }
+.search-box:focus { outline: none; }
+
+.region-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.region-scroll::-webkit-scrollbar { display: none; }
+.region-btn { font-size: 13px; padding: 6px 16px; border-radius: 20px; border: 0.5px solid #c0c0c0; background: #fff; color: #555; cursor: pointer; white-space: nowrap; flex-shrink: 0; -webkit-tap-highlight-color: transparent; }
+.region-btn.active { background: #000; color: #fff; border-color: #000; }
+
+.content { padding: 12px 16px; }
+.count-label { font-size: 13px; color: #888; margin-bottom: 10px; padding-left: 2px; }
+
+.list { display: flex; flex-direction: column; background: #fff; border-radius: 12px; overflow: hidden; border: 0.5px solid #e0e0e0; }
+.list-item + .list-item { border-top: 0.5px solid #e8e8e8; }
+
+.list-header { display: flex; align-items: center; gap: 10px; padding: 14px 16px; cursor: pointer; -webkit-tap-highlight-color: transparent; background: #fff; }
+.list-header:active { background: #f5f5f5; }
+.store-id { font-size: 12px; font-weight: 500; background: #f2f2f7; color: #666; padding: 2px 8px; border-radius: 20px; flex-shrink: 0; }
+.store-name { font-size: 15px; font-weight: 500; color: #000; flex: 1; }
+.chevron { font-size: 11px; color: #bbb; transition: transform 0.2s; display: inline-block; }
+.chevron.open { transform: rotate(90deg); }
+
+.detail { display: none; border-top: 0.5px solid #e8e8e8; background: #fafafa; }
+.detail.open { display: block; }
+
+.copy-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
+.copy-row + .copy-row { border-top: 0.5px solid #efefef; }
+.copy-label { font-size: 12px; color: #999; width: 28px; flex-shrink: 0; }
+.copy-value-wrap { flex: 1; min-width: 0; }
+.copy-value { font-size: 15px; color: #000; }
+.copy-district { font-size: 12px; color: #bbb; margin-top: 2px; }
+.copy-btn { font-size: 13px; font-weight: 500; padding: 8px 18px; border-radius: 8px; border: 0.5px solid #d0d0d0; background: #fff; color: #444; cursor: pointer; flex-shrink: 0; white-space: nowrap; min-width: 68px; text-align: center; -webkit-tap-highlight-color: transparent; }
+.copy-btn:active { background: #f0f0f0; }
+.copy-btn.copied { background: #e8f8ef; color: #1a8c45; border-color: #a8dfc0; }
+
+.empty { text-align: center; padding: 2rem; color: #aaa; font-size: 14px; background: #fff; border-radius: 12px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>iStore 門市聯絡資料</h1>
+  <input class="search-box" type="search" placeholder="搜尋門市名稱或地址..." id="search" />
+  <div class="region-scroll" id="region-scroll"></div>
+</div>
+
+<div class="content">
+  <div class="count-label" id="count-label"></div>
+  <div id="list"></div>
+</div>
+
+<script>
+const stores = [
+  { id: 45,  name: 'iStore 南西',       region: '北一區', phone: '02-2521-2711', street: '南京西路15號2樓',         district: '台北市中山區' },
+  { id: 47,  name: 'iStore 天母',       region: '北一區', phone: '02-2873-3308', street: '天母東路68號一館1樓',      district: '台北市士林區' },
+  { id: 48,  name: 'iStore 台北站前',   region: '北一區', phone: '02-2361-5689', street: '忠孝西路一段66號2樓',      district: '台北市中正區' },
+  { id: 51,  name: 'iStore 信義A11',    region: '北二區', phone: '02-8786-1011', street: '松壽路11號',              district: '台北市信義區' },
+  { id: 57,  name: 'iStore 信義A4',     region: '北二區', phone: '02-2725-2018', street: '松高路19號B1',            district: '台北市信義區' },
+  { id: 61,  name: 'iStore 桃園青埔',   region: '北二區', phone: '03-287-5208',  street: '春德路107號1樓',          district: '桃園市中壢區' },
+  { id: 65,  name: 'iStore 桃園站前',   region: '北二區', phone: '03-331-2528',  street: '中正路19號1樓',           district: '桃園市桃園區' },
+  { id: 75,  name: 'iStore 台中中港',   region: '中區',   phone: '04-2258-6095', street: '台灣大道三段301號2樓',     district: '台中市西屯區' },
+  { id: 76,  name: 'iStore 台中中友',   region: '中區',   phone: '04-2229-5598', street: '三民路三段161號2樓(B棟)',  district: '台中市北區' },
+  { id: 77,  name: 'iStore 台中三井',   region: '中區',   phone: '04-2656-3309', street: '臺灣大道十段166號1樓',     district: '台中市梧棲區' },
+  { id: 81,  name: 'iStore 嘉義耐斯',   region: '中區',   phone: '05-276-5718',  street: '東區忠孝路600號1樓',       district: '嘉義市' },
+  { id: 84,  name: 'iStore 嘉義垂楊',   region: '中區',   phone: '05-222-3685',  street: '西區垂楊路726號1樓',       district: '嘉義市' },
+  { id: 86,  name: 'iStore 台南西門',   region: '台南區', phone: '06-303-0689',  street: '西門路一段658號1樓B區',    district: '台南市中西區' },
+  { id: 88,  name: 'iStore 台南中山',   region: '台南區', phone: '06-222-2158',  street: '中山路162號2樓',          district: '台南市中西區' },
+  { id: 89,  name: 'iStore 台南三井',   region: '台南區', phone: '06-303-3200',  street: '歸仁大道101號1樓',         district: '台南市歸仁區' },
+  { id: 97,  name: 'iStore 台南小北門', region: '台南區', phone: '06-282-0518',  street: '西門路四段135號1樓',       district: '台南市北區' },
+  { id: 115, name: 'iStore 高雄左營',   region: '高雄區', phone: '07-346-9850',  street: '高鐵路123號1樓',          district: '高雄市左營區' },
+  { id: 116, name: 'iStore 高雄三多',   region: '高雄區', phone: '07-331-9218',  street: '三多三路213號B1',         district: '高雄市前鎮區' },
+  { id: 117, name: 'iStore SKM Park',  region: '高雄區', phone: '07-791-8900',  street: '中安路1之1號',            district: '高雄市前鎮區' },
+];
+
+const regions = ['全部', '北一區', '北二區', '中區', '台南區', '高雄區'];
+let currentRegion = '全部';
+let openId = null;
+
+const regionScroll = document.getElementById('region-scroll');
+regions.forEach(r => {
+  const btn = document.createElement('button');
+  btn.className = 'region-btn' + (r === '全部' ? ' active' : '');
+  btn.textContent = r;
+  btn.onclick = () => setRegion(r);
+  regionScroll.appendChild(btn);
+});
+
+function setRegion(r) {
+  currentRegion = r;
+  openId = null;
+  document.querySelectorAll('.region-btn').forEach(b => b.classList.toggle('active', b.textContent === r));
+  render();
+}
+
+function toggleItem(id) {
+  openId = openId === id ? null : id;
+  render();
+}
+
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '已複製 ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '複製'; btn.classList.remove('copied'); }, 1500);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '已複製 ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '複製'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+function render() {
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const filtered = stores.filter(s => {
+    const regionOk = currentRegion === '全部' || s.region === currentRegion;
+    const searchOk = !q || s.name.toLowerCase().includes(q) || String(s.id).includes(q) || s.street.includes(q) || s.district.includes(q);
+    return regionOk && searchOk;
+  });
+
+  document.getElementById('count-label').textContent = `顯示 ${filtered.length} 間門市`;
+
+  const listEl = document.getElementById('list');
+  if (!filtered.length) {
+    listEl.innerHTML = '<div class="empty">沒有符合的門市</div>';
+    return;
+  }
+
+  listEl.innerHTML = '<div class="list">' + filtered.map(s => {
+    const isOpen = openId === s.id;
+    return `
+      <div class="list-item">
+        <div class="list-header" onclick="toggleItem(${s.id})">
+          <span class="store-id">${s.id}</span>
+          <span class="store-name">${s.name}</span>
+          <span class="chevron ${isOpen ? 'open' : ''}">▶</span>
+        </div>
+        <div class="detail ${isOpen ? 'open' : ''}">
+          <div class="copy-row">
+            <span class="copy-label">電話</span>
+            <div class="copy-value-wrap">
+              <div class="copy-value">${s.phone}</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('${s.phone}', this)">複製</button>
+          </div>
+          <div class="copy-row">
+            <span class="copy-label">地址</span>
+            <div class="copy-value-wrap">
+              <div class="copy-value">${s.street}</div>
+              <div class="copy-district">${s.district}</div>
+            </div>
+            <button class="copy-btn" onclick="copyText('${s.street}', this)">複製</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('') + '</div>';
+}
+
+document.getElementById('search').addEventListener('input', () => { openId = null; render(); });
+render();
+</script>
+</body>
+</html>
