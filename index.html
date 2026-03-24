@@ -2,63 +2,319 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>iStore 門市聯絡資料</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>iStore 門市資料</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; background: #f2f2f7; min-height: 100vh; }
+:root {
+  --bg: #0f0f11;
+  --surface: #1a1a1f;
+  --surface2: #222228;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #f0f0f2;
+  --text2: #888896;
+  --text3: #4a4a58;
+  --accent: #5b7fff;
+  --accent-dim: rgba(91,127,255,0.15);
+  --success: #34c97a;
+  --success-dim: rgba(52,201,122,0.15);
+  --radius: 14px;
+  --radius-sm: 8px;
+}
 
-.header { background: #fff; padding: 16px; border-bottom: 0.5px solid #e0e0e0; position: sticky; top: 0; z-index: 10; }
-.header h1 { font-size: 17px; font-weight: 600; color: #000; margin-bottom: 12px; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-.search-box { width: 100%; font-size: 15px; padding: 9px 14px; border-radius: 10px; border: none; background: #f2f2f7; color: #000; margin-bottom: 12px; }
-.search-box:focus { outline: none; }
+body {
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+}
 
-.region-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(15,15,17,0.92);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 16px 0;
+  padding-top: max(16px, env(safe-area-inset-top));
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.logo-mark {
+  width: 28px;
+  height: 28px;
+  background: var(--accent);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.logo-mark svg { width: 14px; height: 14px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.header-title {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  color: var(--text);
+}
+
+.search-wrap {
+  position: relative;
+  margin-bottom: 14px;
+}
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text3);
+  pointer-events: none;
+  display: flex;
+}
+.search-box {
+  width: 100%;
+  font-family: inherit;
+  font-size: 15px;
+  padding: 10px 14px 10px 38px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+.search-box::placeholder { color: var(--text3); }
+.search-box:focus { outline: none; border-color: var(--accent); }
+
+.region-scroll {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 14px;
+  scrollbar-width: none;
+}
 .region-scroll::-webkit-scrollbar { display: none; }
-.region-btn { font-size: 13px; padding: 6px 16px; border-radius: 20px; border: 0.5px solid #c0c0c0; background: #fff; color: #555; cursor: pointer; white-space: nowrap; flex-shrink: 0; -webkit-tap-highlight-color: transparent; }
-.region-btn.active { background: #000; color: #fff; border-color: #000; }
 
-.content { padding: 12px 16px; }
-.count-label { font-size: 13px; color: #888; margin-bottom: 10px; padding-left: 2px; }
+.region-btn {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.18s;
+}
+.region-btn:active { opacity: 0.7; }
+.region-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
 
-.list { display: flex; flex-direction: column; background: #fff; border-radius: 12px; overflow: hidden; border: 0.5px solid #e0e0e0; }
-.list-item + .list-item { border-top: 0.5px solid #e8e8e8; }
+.content {
+  padding: 16px;
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
+}
 
-.list-header { display: flex; align-items: center; gap: 10px; padding: 14px 16px; cursor: pointer; -webkit-tap-highlight-color: transparent; background: #fff; }
-.list-header:active { background: #f5f5f5; }
-.store-id { font-size: 12px; font-weight: 500; background: #f2f2f7; color: #666; padding: 2px 8px; border-radius: 20px; flex-shrink: 0; }
-.store-name { font-size: 15px; font-weight: 500; color: #000; flex: 1; }
-.chevron { font-size: 11px; color: #bbb; transition: transform 0.2s; display: inline-block; }
-.chevron.open { transform: rotate(90deg); }
+.count-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 12px;
+  padding-left: 2px;
+}
 
-.detail { display: none; border-top: 0.5px solid #e8e8e8; background: #fafafa; }
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.list-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.list-item.open { border-color: var(--border2); }
+
+.list-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  cursor: pointer;
+  user-select: none;
+}
+.list-header:active { background: var(--surface2); }
+
+.store-badge {
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--surface2);
+  color: var(--text2);
+  padding: 3px 8px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  letter-spacing: 0.2px;
+  transition: all 0.2s;
+}
+.list-item.open .store-badge {
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+.store-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  flex: 1;
+  letter-spacing: -0.2px;
+}
+
+.chevron-wrap {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--surface2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s, transform 0.25s;
+}
+.list-item.open .chevron-wrap {
+  background: var(--accent-dim);
+  transform: rotate(90deg);
+}
+.chevron-wrap svg {
+  width: 10px;
+  height: 10px;
+  fill: none;
+  stroke: var(--text2);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 0.2s;
+}
+.list-item.open .chevron-wrap svg { stroke: var(--accent); }
+
+.detail {
+  display: none;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
 .detail.open { display: block; }
 
-.copy-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
-.copy-row + .copy-row { border-top: 0.5px solid #efefef; }
-.copy-label { font-size: 12px; color: #999; width: 28px; flex-shrink: 0; }
-.copy-value-wrap { flex: 1; min-width: 0; }
-.copy-value { font-size: 15px; color: #000; }
-.copy-district { font-size: 12px; color: #bbb; margin-top: 2px; }
-.copy-btn { font-size: 13px; font-weight: 500; padding: 8px 18px; border-radius: 8px; border: 0.5px solid #d0d0d0; background: #fff; color: #444; cursor: pointer; flex-shrink: 0; white-space: nowrap; min-width: 68px; text-align: center; -webkit-tap-highlight-color: transparent; }
-.copy-btn:active { background: #f0f0f0; }
-.copy-btn.copied { background: #e8f8ef; color: #1a8c45; border-color: #a8dfc0; }
+.copy-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+}
+.copy-row + .copy-row { border-top: 1px solid var(--border); }
 
-.empty { text-align: center; padding: 2rem; color: #aaa; font-size: 14px; background: #fff; border-radius: 12px; }
+.copy-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  width: 30px;
+  flex-shrink: 0;
+}
+
+.copy-value-wrap { flex: 1; min-width: 0; }
+
+.copy-value {
+  font-size: 15px;
+  color: var(--text);
+  letter-spacing: -0.1px;
+}
+
+.copy-district {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 3px;
+}
+
+.copy-btn {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--text2);
+  cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
+  min-width: 60px;
+  text-align: center;
+  letter-spacing: 0.2px;
+  transition: all 0.15s;
+}
+.copy-btn:active { transform: scale(0.94); }
+.copy-btn.copied {
+  background: var(--success-dim);
+  color: var(--success);
+  border-color: rgba(52,201,122,0.3);
+}
+
+.empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text3);
+  font-size: 14px;
+}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>iStore 門市聯絡資料</h1>
-  <input class="search-box" type="search" placeholder="搜尋門市名稱或地址..." id="search" />
+  <div class="header-top">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    <span class="header-title">iStore 門市資料</span>
+  </div>
+  <div class="search-wrap">
+    <span class="search-icon">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </span>
+    <input class="search-box" type="search" placeholder="搜尋門市名稱或地址…" id="search" autocomplete="off" />
+  </div>
   <div class="region-scroll" id="region-scroll"></div>
 </div>
 
 <div class="content">
   <div class="count-label" id="count-label"></div>
-  <div id="list"></div>
+  <div class="list" id="list"></div>
 </div>
 
 <script>
@@ -110,22 +366,30 @@ function toggleItem(id) {
 }
 
 function copyText(text, btn) {
-  navigator.clipboard.writeText(text).then(() => {
+  const done = () => {
     btn.textContent = '已複製 ✓';
     btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = '複製'; btn.classList.remove('copied'); }, 1500);
-  }).catch(() => {
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    btn.textContent = '已複製 ✓';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = '複製'; btn.classList.remove('copied'); }, 1500);
-  });
+    setTimeout(() => { btn.textContent = '複製'; btn.classList.remove('copied'); }, 1600);
+  };
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(done).catch(() => fallback(text, done));
+  } else {
+    fallback(text, done);
+  }
 }
+
+function fallback(text, cb) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;opacity:0';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  cb();
+}
+
+const chevronSVG = `<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>`;
 
 function render() {
   const q = document.getElementById('search').value.trim().toLowerCase();
@@ -135,22 +399,22 @@ function render() {
     return regionOk && searchOk;
   });
 
-  document.getElementById('count-label').textContent = `顯示 ${filtered.length} 間門市`;
+  document.getElementById('count-label').textContent = `${filtered.length} 間門市`;
 
   const listEl = document.getElementById('list');
   if (!filtered.length) {
-    listEl.innerHTML = '<div class="empty">沒有符合的門市</div>';
+    listEl.innerHTML = `<div class="empty">沒有符合的門市</div>`;
     return;
   }
 
-  listEl.innerHTML = '<div class="list">' + filtered.map(s => {
+  listEl.innerHTML = filtered.map(s => {
     const isOpen = openId === s.id;
     return `
-      <div class="list-item">
+      <div class="list-item ${isOpen ? 'open' : ''}">
         <div class="list-header" onclick="toggleItem(${s.id})">
-          <span class="store-id">${s.id}</span>
+          <span class="store-badge">${s.id}</span>
           <span class="store-name">${s.name}</span>
-          <span class="chevron ${isOpen ? 'open' : ''}">▶</span>
+          <div class="chevron-wrap">${chevronSVG}</div>
         </div>
         <div class="detail ${isOpen ? 'open' : ''}">
           <div class="copy-row">
@@ -170,7 +434,7 @@ function render() {
           </div>
         </div>
       </div>`;
-  }).join('') + '</div>';
+  }).join('');
 }
 
 document.getElementById('search').addEventListener('input', () => { openId = null; render(); });
